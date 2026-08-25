@@ -1,30 +1,15 @@
 const amountInput = document.getElementById('amount');
 const fromSelect = document.getElementById('from-currency');
 const toSelect = document.getElementById('to-currency');
-const fromFlag = document.getElementById('from-flag');
-const toFlag = document.getElementById('to-flag');
-const resultFlag = document.getElementById('result-flag');
 const resultText = document.getElementById('result-text');
 const rateInfo = document.getElementById('exchange-rate-info');
 const swapBtn = document.getElementById('swap-btn');
 const loading = document.getElementById('loading');
 const resultContainer = document.getElementById('result-container');
 
-// Complete Mapping: Currency Code -> 2-Letter Country Code for Flags
-const currencyToCountry = {
-  USD: 'us', EUR: 'eu', GBP: 'gb', JPY: 'jp', CAD: 'ca', AUD: 'au', CHF: 'ch', CNY: 'cn',
-  INR: 'in', AED: 'ae', SAR: 'sa', YER: 'ye', EGP: 'eg', BRL: 'br', ZAR: 'za', TRY: 'tr',
-  RUB: 'ru', KRW: 'kr', MXN: 'mx', NZD: 'nz', SGD: 'sg', HKD: 'hk', SEK: 'se', NOK: 'no',
-  DKK: 'dk', PLN: 'pl', THB: 'th', IDR: 'id', MYR: 'my', PHP: 'ph', PKR: 'pk', BDT: 'bd',
-  VND: 'vn', IQD: 'iq', KWD: 'kw', QAR: 'qa', OMR: 'om', BHD: 'bh', JOD: 'jo', LBP: 'lb',
-  ARS: 'ar', CLP: 'cl', COP: 'co', PEN: 'pe', UYU: 'uy', MAD: 'ma', DZD: 'dz', TND: 'tn',
-  NGN: 'ng', GHS: 'gh', KES: 'ke', TZS: 'tz', UGX: 'ug', ZMW: 'zm', CZK: 'cz', HUF: 'hu',
-  RON: 'ro', BGN: 'bg', HRK: 'hr', ISK: 'is', ALL: 'al', RSD: 'rs', GEL: 'ge', AMD: 'am'
-};
-
-// Comprehensive Currency Names Dictionary
-const currencyNames = {
-  USD: 'US Dollar', EUR: 'Euro', GBP: 'British Pound Sterling', JPY: 'Japanese Yen',
+// Complete Full Name Dictionary for World Currencies
+const currencyFullNames = {
+  USD: 'United States Dollar', EUR: 'Euro', GBP: 'British Pound Sterling', JPY: 'Japanese Yen',
   CAD: 'Canadian Dollar', AUD: 'Australian Dollar', CHF: 'Swiss Franc', CNY: 'Chinese Yuan',
   INR: 'Indian Rupee', AED: 'United Arab Emirates Dirham', SAR: 'Saudi Riyal', YER: 'Yemeni Rial',
   EGP: 'Egyptian Pound', BRL: 'Brazilian Real', ZAR: 'South African Rand', TRY: 'Turkish Lira',
@@ -39,7 +24,31 @@ const currencyNames = {
   NGN: 'Nigerian Naira', GHS: 'Ghanaian Cedi', KES: 'Kenyan Shilling', TZS: 'Tanzanian Shilling',
   UGX: 'Ugandan Shilling', ZMW: 'Zambian Kwacha', CZK: 'Czech Koruna', HUF: 'Hungarian Forint',
   RON: 'Romanian Leu', BGN: 'Bulgarian Lev', HRK: 'Croatian Kuna', ISK: 'Icelandic Króna',
-  ALL: 'Albanian Lek', RSD: 'Serbian Dinar', GEL: 'Georgian Lari', AMD: 'Armenian Dram'
+  ALL: 'Albanian Lek', RSD: 'Serbian Dinar', GEL: 'Georgian Lari', AMD: 'Armenian Dram',
+  AFN: 'Afghan Afghani', AOA: 'Angolan Kwanza', AWG: 'Aruban Florin', AZN: 'Azerbaijani Manat',
+  BAM: 'Bosnia-Herzegovina Convertible Mark', BBD: 'Barbadian Dollar', BIF: 'Burundian Franc',
+  BMD: 'Bermudian Dollar', BND: 'Brunei Dollar', BOB: 'Bolivian Boliviano', BSD: 'Bahamian Dollar',
+  BTN: 'Bhutanese Ngultrum', BWP: 'Botswana Pula', BYN: 'Belarusian Ruble', BZD: 'Belize Dollar',
+  CDF: 'Congolese Franc', CRC: 'Costa Rican Colón', CUP: 'Cuban Peso', CVE: 'Cape Verdean Escudo',
+  DJF: 'Djiboutian Franc', DOP: 'Dominican Peso', ERN: 'Eritrean Nakfa', ETB: 'Ethiopian Birr',
+  FJD: 'Fijian Dollar', FKP: 'Falkland Islands Pound', FOK: 'Faroese Króna', GMD: 'Gambian Dalasi',
+  GNF: 'Guinean Franc', GTQ: 'Guatemalan Quetzal', GYD: 'Guyanese Dollar', HNL: 'Honduran Lempira',
+  HTG: 'Haitian Gourde', ILS: 'Israeli New Shekel', IMP: 'Manx Pound', JEP: 'Jersey Pound',
+  JMD: 'Jamaican Dollar', KGS: 'Kyrgyzstani Som', KHR: 'Cambodian Riel', KMF: 'Comorian Franc',
+  KYD: 'Cayman Islands Dollar', KZT: 'Kazakhstani Tenge', LAK: 'Laotian Kip', LKR: 'Sri Lankan Rupee',
+  LRD: 'Liberian Dollar', LSL: 'Lesotho Loti', LYD: 'Libyan Dinar', MDL: 'Moldovan Leu',
+  MGA: 'Malagasy Ariary', MKD: 'Macedonian Denar', MMK: 'Myanmar Kyat', MNT: 'Mongolian Tugrik',
+  MOP: 'Macanese Pataca', MRU: 'Mauritanian Ouguiya', MUR: 'Mauritian Rupee', MVR: 'Maldivian Rufiyaa',
+  MWK: 'Malawian Kwacha', MZN: 'Mozambican Metical', NAD: 'Namibian Dollar', NIO: 'Nicaraguan Córdoba',
+  NPR: 'Nepalese Rupee', PAB: 'Panamanian Balboa', PGK: 'Papua New Guinean Kina', PYG: 'Paraguayan Guarani',
+  RWF: 'Rwandan Franc', SBD: 'Solomon Islands Dollar', SCR: 'Seychellois Rupee', SDG: 'Sudanese Pound',
+  SHP: 'Saint Helena Pound', SLE: 'Sierra Leonean Leone', SLL: 'Sierra Leonean Leone', SOS: 'Somali Shilling',
+  SRD: 'Surinamese Dollar', SSP: 'South Sudanese Pound', STN: 'São Tomé and Príncipe Dobra',
+  SYP: 'Syrian Pound', SZL: 'Eswatini Lilangeni', TJS: 'Tajikistani Somoni', TMT: 'Turkmenistan Manat',
+  TOP: 'Tongan Paʻanga', TTD: 'Trinidad and Tobago Dollar', TWD: 'New Taiwan Dollar', UAH: 'Ukrainian Hryvnia',
+  UZS: 'Uzbekistani Som', VES: 'Venezuelan Bolívar', VUV: 'Vanuatu Vatu', WST: 'Samoan Tala',
+  XAF: 'Central African CFA Franc', XCD: 'East Caribbean Dollar', XOF: 'West African CFA Franc',
+  XPF: 'CFP Franc', ZWG: 'Zimbabwean ZiG'
 };
 
 async function initializeApp() {
@@ -52,13 +61,20 @@ async function initializeApp() {
 
     if (data.result !== 'success') throw new Error('Failed to load rates');
 
-    const currencyCodes = Object.keys(data.rates).sort();
+    const currencyCodes = Object.keys(data.rates);
+    
+    // Sort array based on FULL NAMES alphabetically
+    currencyCodes.sort((a, b) => {
+      const nameA = currencyFullNames[a] || a;
+      const nameB = currencyFullNames[b] || b;
+      return nameA.localeCompare(nameB);
+    });
+
     populateDropdowns(currencyCodes);
 
     fromSelect.value = 'USD';
     toSelect.value = 'EUR';
 
-    updateFlags();
     await convertCurrency();
   } catch (err) {
     loading.classList.add('hidden');
@@ -68,45 +84,30 @@ async function initializeApp() {
   }
 }
 
-// Reliable CDN using 2-letter ISO codes with fallback
-function getFlagUrl(currencyCode) {
-  const countryCode = currencyToCountry[currencyCode] || currencyCode.substring(0, 2).toLowerCase();
-  return `https://flags.restcountries.com/v5/w640/${countryCode}.png`;
-}
-
 function populateDropdowns(codes) {
   fromSelect.innerHTML = '';
   toSelect.innerHTML = '';
 
   codes.forEach(code => {
-    // Ensures FULL NAME is displayed alongside the 3-letter code
-    const name = currencyNames[code] ? currencyNames[code] : `${code} Currency`;
-    const labelText = `${code} - ${name}`;
+    // Uses strictly the full name
+    const fullName = currencyFullNames[code] || `${code} Currency`;
 
     const opt1 = document.createElement('option');
     opt1.value = code;
-    opt1.textContent = labelText;
+    opt1.textContent = fullName;
     fromSelect.appendChild(opt1);
 
     const opt2 = document.createElement('option');
     opt2.value = code;
-    opt2.textContent = labelText;
+    opt2.textContent = fullName;
     toSelect.appendChild(opt2);
   });
-}
-
-function updateFlags() {
-  fromFlag.src = getFlagUrl(fromSelect.value);
-  toFlag.src = getFlagUrl(toSelect.value);
-  resultFlag.src = getFlagUrl(toSelect.value);
 }
 
 async function convertCurrency() {
   const amount = parseFloat(amountInput.value);
   const from = fromSelect.value;
   const to = toSelect.value;
-
-  updateFlags();
 
   if (isNaN(amount) || amount <= 0) {
     resultText.textContent = '--';
@@ -129,10 +130,10 @@ async function convertCurrency() {
       maximumFractionDigits: 2
     });
 
-    const toFullName = currencyNames[to] || to;
-    const fromFullName = currencyNames[from] || from;
+    const toFullName = currencyFullNames[to] || to;
+    const fromFullName = currencyFullNames[from] || from;
 
-    resultText.textContent = `${converted} ${to}`;
+    resultText.textContent = `${converted} ${toFullName}`;
     rateInfo.textContent = `1 ${fromFullName} = ${rate.toFixed(4)} ${toFullName}`;
 
     loading.classList.add('hidden');
@@ -149,13 +150,6 @@ async function convertCurrency() {
 amountInput.addEventListener('input', convertCurrency);
 fromSelect.addEventListener('change', convertCurrency);
 toSelect.addEventListener('change', convertCurrency);
-
-// Handle image load errors gracefully by falling back to a generic globe icon
-[fromFlag, toFlag, resultFlag].forEach(img => {
-  img.onerror = function() {
-    this.src = 'https://flags.restcountries.com/v5/w640/un.png';
-  };
-});
 
 swapBtn.addEventListener('click', () => {
   const temp = fromSelect.value;
