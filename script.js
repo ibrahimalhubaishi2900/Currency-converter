@@ -7,21 +7,43 @@ const swapBtn = document.getElementById('swap-btn');
 const loading = document.getElementById('loading');
 const resultContainer = document.getElementById('result-container');
 
-// Standard Currencies List to populate dropdowns initially
-const popularCurrencies = [
-  "USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY", 
-  "INR", "AED", "SAR", "YER", "EGP", "BRL", "ZAR"
-];
-
 let cachedRates = {};
 
 async function initializeApp() {
-  populateDropdowns();
-  await convertCurrency();
+  try {
+    loading.classList.remove('hidden');
+    resultContainer.classList.add('hidden');
+
+    // Fetch initial rates (defaults to USD base) to get full list of currencies
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await res.json();
+
+    if (data.result !== 'success') throw new Error('Failed to load rates');
+
+    cachedRates = data.rates;
+    const currencyCodes = Object.keys(data.rates).sort();
+
+    // Populate dropdowns dynamically with ALL available currencies
+    populateDropdowns(currencyCodes);
+
+    // Set default selections
+    fromSelect.value = 'USD';
+    toSelect.value = 'EUR';
+
+    convertCurrency();
+  } catch (err) {
+    loading.classList.add('hidden');
+    resultContainer.classList.remove('hidden');
+    resultText.textContent = 'Error';
+    rateInfo.textContent = 'Unable to fetch initial rates.';
+  }
 }
 
-function populateDropdowns() {
-  popularCurrencies.forEach(code => {
+function populateDropdowns(codes) {
+  fromSelect.innerHTML = '';
+  toSelect.innerHTML = '';
+
+  codes.forEach(code => {
     const opt1 = document.createElement('option');
     opt1.value = code;
     opt1.textContent = code;
@@ -32,9 +54,6 @@ function populateDropdowns() {
     opt2.textContent = code;
     toSelect.appendChild(opt2);
   });
-
-  fromSelect.value = 'USD';
-  toSelect.value = 'EUR';
 }
 
 async function convertCurrency() {
@@ -52,7 +71,7 @@ async function convertCurrency() {
     loading.classList.remove('hidden');
     resultContainer.classList.add('hidden');
 
-    // Fetch base currency rates (No API key required)
+    // Fetch fresh rates for the chosen 'From' currency
     const res = await fetch(`https://open.er-api.com/v6/latest/${from}`);
     const data = await res.json();
 
@@ -66,7 +85,7 @@ async function convertCurrency() {
 
     resultText.textContent = `${converted} ${to}`;
     rateInfo.textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
-    
+
     loading.classList.add('hidden');
     resultContainer.classList.remove('hidden');
   } catch (err) {
