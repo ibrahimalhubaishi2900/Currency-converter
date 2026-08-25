@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FxPulse | Dynamic Currency Converter</title>
+  <title>FxPulse | Global Currency Converter</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,7 +13,7 @@
   <div class="converter-card">
     <header>
       <h1>FxPulse</h1>
-      <p class="subtitle">Real-Time Exchange Rates</p>
+      <p class="subtitle">Real-Time Global Exchange Rates</p>
     </header>
 
     <div class="input-group">
@@ -24,22 +24,31 @@
     <div class="currency-row">
       <div class="select-box">
         <label for="from-currency">From</label>
-        <select id="from-currency"></select>
+        <div class="select-wrapper">
+          <img id="from-flag" class="flag-icon" src="" alt="Flag" />
+          <select id="from-currency"></select>
+        </div>
       </div>
 
       <button id="swap-btn" title="Swap Currencies">⇄</button>
 
       <div class="select-box">
         <label for="to-currency">To</label>
-        <select id="to-currency"></select>
+        <div class="select-wrapper">
+          <img id="to-flag" class="flag-icon" src="" alt="Flag" />
+          <select id="to-currency"></select>
+        </div>
       </div>
     </div>
 
     <div class="result-box">
-      <div id="loading" class="hidden">Fetching live rates...</div>
+      <div id="loading" class="hidden">Loading exchange rates...</div>
       <div id="result-container">
         <span class="rate-label">Converted Amount</span>
-        <h2 id="result-text">--</h2>
+        <div class="result-header">
+          <img id="result-flag" class="result-flag-icon" src="" alt="Flag" />
+          <h2 id="result-text">--</h2>
+        </div>
         <p id="exchange-rate-info" class="rate-info">--</p>
       </div>
     </div>
